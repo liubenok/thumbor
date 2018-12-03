@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.static_ip_name }}
+spec:
+  tls:
+    - secretName: tls-trendalytics-co
+  backend:
+    serviceName: {{ .Chart.Name }}
+    servicePort: {{ .Values.service_http.containerPort }}

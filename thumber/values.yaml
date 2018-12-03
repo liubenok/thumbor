@@ -1,0 +1,8 @@
+replicaCount: 1
+
+image:
+  repository: gcr.io/blissful-land-223009/thumbor
+service_http:
+  containerPort: 8000
+
+release: full
