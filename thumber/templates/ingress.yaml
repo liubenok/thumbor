@@ -1,12 +1,10 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}
+  name: thumbor
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: {{ .Values.static_ip_name }}
+    kubernetes.io/ingress.global-static-ip-name: thumbor
 spec:
-  tls:
-    - secretName: tls-trendalytics-co
   backend:
-    serviceName: {{ .Chart.Name }}
-    servicePort: {{ .Values.service_http.containerPort }}
+    serviceName: thumbor
+    servicePort: 8000

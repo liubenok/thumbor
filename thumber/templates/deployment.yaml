@@ -1,32 +1,56 @@
-apiVersion: apps/v1beta1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}
+  name: {{ template "fullname" . }}
   labels:
-    app: {{ .Chart.Name }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 spec:
   replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
-        release: {{ .Release.Name }}
+        app: {{ template "fullname" . }}
+      annotations:
+{{ toYaml .Values.annotations | indent 8 }}
     spec:
+      volumes:
+      - name: storage
+        {{ if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}
+        {{ else }}
+        emptyDir: {}
+        {{ end }}
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: Always
+        image: dictcp/thumbor
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+        args:
+          - "thumbor"
         ports:
-        - containerPort: {{ .Values.service_http.containerPort }}
+        - name: http
+          containerPort: {{ .Values.service.internalPort }}
+        env:
+        - name: DETECTORS
+          value: "['thumbor.detectors.face_detector','thumbor.detectors.feature_detector']"
+        - name: ENGINE
+          value: "opencv_engine"
+        - name: THUMBOR_PORT
+          value: {{ .Values.service.internalPort | quote }}
+{{- range $name, $value := .Values.env }}
+{{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+{{- end }}
+{{- end }}
+        volumeMounts:
+        - name: storage
+          mountPath: /app
+          readOnly: false
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+        livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 10 }}
         readinessProbe:
-          httpGet:
-              path: /
-              port: {{ .Values.service_http.containerPort }}
-          initialDelaySeconds: 10
-          periodSeconds: 60
+{{ toYaml .Values.readinessProbe | indent 10 }}
