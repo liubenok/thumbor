@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: thumbor
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 spec:
@@ -9,43 +9,29 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
-      annotations:
-{{ toYaml .Values.annotations | indent 8 }}
+        app: thumbor
     spec:
-      volumes:
-      - name: storage
-        {{ if .Values.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ template "fullname" . }}
-        {{ else }}
-        emptyDir: {}
-        {{ end }}
       containers:
       - name: {{ .Chart.Name }}
         image: dictcp/thumbor
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-
+        imagePullPolicy: Always
         args:
           - "thumbor"
         ports:
         - name: http
-          containerPort: {{ .Values.service.internalPort }}
+          containerPort: 8000
         env:
         - name: DETECTORS
           value: "['thumbor.detectors.face_detector','thumbor.detectors.feature_detector']"
-        - name: ENGINE
-          value: "opencv_engine"
         - name: THUMBOR_PORT
-          value: {{ .Values.service.internalPort | quote }}
-{{- range $name, $value := .Values.env }}
-{{- if not (empty $value) }}
-        - name: {{ $name | quote }}
-          value: {{ $value | quote }}
-{{- end }}
-{{- end }}
+          value: 8000
         resources:
-{{ toYaml .Values.resources | indent 12 }}
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
         livenessProbe:
           httpGet:
             path: /healthcheck
