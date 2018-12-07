@@ -22,7 +22,7 @@ spec:
           containerPort: 8000
         volumeMounts:
         - name: thumbor-volume
-          mountPath: /tmp/thumbor/storage
+          mountPath: /data/storage
         volumes:
         - name: thumbor-volume
           persistentVolumeClaim:
