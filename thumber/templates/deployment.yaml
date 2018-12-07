@@ -26,7 +26,7 @@ spec:
         volumes:
         - name: thumbor-volume
           persistentVolumeClaim:
-            claimName: thumbor
+            claimName: thumbor-claim
           
         env:
         - name: DETECTORS
