@@ -23,10 +23,10 @@ spec:
         volumeMounts:
         - name: thumbor-volume
           mountPath: /data/storage
-        volumes:
-        - name: thumbor-volume
-          persistentVolumeClaim:
-            claimName: thumbor-claim
+      volumes:
+      - name: thumbor-volume
+        persistentVolumeClaim:
+          claimName: thumbor-claim
           
         env:
         - name: DETECTORS
