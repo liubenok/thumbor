@@ -20,6 +20,14 @@ spec:
         ports:
         - name: http
           containerPort: 8000
+        volumeMounts:
+        - name: thumbor-volume
+          mountPath: /tmp/thumbor/storage
+        volumes:
+        - name: thumbor-volume
+          persistentVolumeClaim:
+            claimName: thumbor
+          
         env:
         - name: DETECTORS
           value: "['thumbor.detectors.face_detector','thumbor.detectors.feature_detector']"
